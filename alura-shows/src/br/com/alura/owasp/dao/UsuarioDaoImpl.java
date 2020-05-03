@@ -4,6 +4,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Repository;
 
 import br.com.alura.owasp.model.Usuario;
@@ -14,8 +15,15 @@ public class UsuarioDaoImpl implements UsuarioDao {
 	@PersistenceContext
 	private EntityManager manager;
 
-	public void salva(Usuario usuario) {
-		manager.persist(usuario);
+	public void salva(Usuario usuario){
+	    transformaASenhaDoUsuarioEmHash(usuario);
+	    manager.persist(usuario);
+	}
+
+	private void transformaASenhaDoUsuarioEmHash(Usuario usuario){
+	    String salto = BCrypt.gensalt();
+	    String senhaHashed = BCrypt.hashpw(usuario.getSenha(), salto);
+	    usuario.setSenha(senhaHashed);
 	}
 
 	public Usuario procuraUsuario(Usuario usuario) {
