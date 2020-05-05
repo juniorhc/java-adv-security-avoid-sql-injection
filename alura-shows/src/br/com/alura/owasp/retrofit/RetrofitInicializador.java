@@ -12,4 +12,8 @@ public class RetrofitInicializador {
         retrofit = new Retrofit.Builder().baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create()).build();
     }
+    
+    public GoogleService getGoogleService() {
+        return retrofit.create(GoogleService.class);
+    }
 }
