@@ -40,10 +40,9 @@ public class UsuarioController {
 	}
 
 	@RequestMapping(value = "/registrar", method = RequestMethod.POST)
-	public String registrar(MultipartFile imagem,
-			@ModelAttribute("usuarioRegistro") Usuario usuarioRegistro,
-			RedirectAttributes redirect, HttpServletRequest request,
-			Model model, HttpSession session) throws IllegalStateException, IOException {
+	public String registrar(MultipartFile imagem, @ModelAttribute("usuarioRegistro") Usuario usuarioRegistro,
+			RedirectAttributes redirect, HttpServletRequest request, Model model, HttpSession session)
+			throws IllegalStateException, IOException {
 
 		tratarImagem(imagem, usuarioRegistro, request);
 		usuarioRegistro.getRoles().add(new Role("ROLE_USER"));
@@ -54,9 +53,11 @@ public class UsuarioController {
 		return "usuarioLogado";
 	}
 
-	@RequestMapping(value="/login", method=RequestMethod.POST)
-	public String login(@ModelAttribute("usuario") Usuario usuario,
-			RedirectAttributes redirect, Model model, HttpSession session) {
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	public String login(@ModelAttribute("usuario") Usuario usuario, RedirectAttributes redirect, Model model,
+			HttpSession session, HttpServletRequest request) {
+
+		String recaptcha = request.getParameter("g-recaptcha-response");
 
 		Usuario usuarioRetornado = dao.procuraUsuario(usuario);
 		model.addAttribute("usuario", usuarioRetornado);
@@ -76,11 +77,10 @@ public class UsuarioController {
 		return "usuario";
 	}
 
-	private void tratarImagem(MultipartFile imagem, Usuario usuario,
-			HttpServletRequest request) throws IllegalStateException, IOException {
+	private void tratarImagem(MultipartFile imagem, Usuario usuario, HttpServletRequest request)
+			throws IllegalStateException, IOException {
 		usuario.setNomeImagem(imagem.getOriginalFilename());
-		File arquivo = new File(request.getServletContext().getRealPath(
-				"/image"), usuario.getNomeImagem());
+		File arquivo = new File(request.getServletContext().getRealPath("/image"), usuario.getNomeImagem());
 		imagem.transferTo(arquivo);
 
 	}
