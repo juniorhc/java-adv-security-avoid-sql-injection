@@ -10,8 +10,8 @@ public class GoogleWebClient {
 
     public void verifica(String recaptcha) throws IOException {
 
-        Call<String> token = new RetrofitInicializador().getGoogleService().enviaToken(SECRET, recaptcha);
-        token.execute().body();
+        Call<Resposta> token = new RetrofitInicializador().getGoogleService().enviaToken(SECRET, recaptcha);
+        token.execute().body().isSuccess();
 
     }
 }
