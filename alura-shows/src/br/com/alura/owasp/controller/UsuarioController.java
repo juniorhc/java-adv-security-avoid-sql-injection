@@ -27,7 +27,10 @@ public class UsuarioController {
 
 	@Autowired
 	private UsuarioDao dao;
-
+	
+    @Autowired
+    private GoogleWebClient cliente;
+	
 	@RequestMapping("/usuario")
 	public String usuario(Model model) {
 		Usuario usuario = new Usuario();
@@ -54,23 +57,31 @@ public class UsuarioController {
 		return "usuarioLogado";
 	}
 
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public String login(@ModelAttribute("usuario") Usuario usuario, RedirectAttributes redirect, Model model,
-			HttpSession session, HttpServletRequest request) throws IOException {
+	@RequestMapping(value="/login", method=RequestMethod.POST)
+	public String login(@ModelAttribute("usuario") Usuario usuario, RedirectAttributes redirect, Model model, HttpSession session, HttpServletRequest req) throws IOException {
 
-		String recaptcha = request.getParameter("g-recaptcha-response");
-	    new GoogleWebClient().verifica(recaptcha);
+	    String recaptcha = req.getParameter("g-recaptcha-response");
 
-		Usuario usuarioRetornado = dao.procuraUsuario(usuario);
-		model.addAttribute("usuario", usuarioRetornado);
-		if (usuarioRetornado == null) {
-			redirect.addFlashAttribute("mensagem", "Usuário não encontrado");
-			return "redirect:/usuario";
-		}
+	    boolean verificaRecaptcha = cliente.verifica(recaptcha);
+	    if(verificaRecaptcha){
+	        return procuraUsuario(usuario, redirect, model, session);
+	    }
 
-		session.setAttribute("usuario", usuarioRetornado);
-		return "usuarioLogado";
+	    redirect.addFlashAttribute("mensagem", "Por favor, comprove que você é humano!");
+	    return "redirect:/usuario";
+	}
+	
+	private String procuraUsuario(Usuario usuario, RedirectAttributes redirect, Model model, HttpSession session) {
 
+	    Usuario usuarioRetornado = dao.procuraUsuario(usuario);
+	    model.addAttribute("usuario", usuarioRetornado);
+	    if(usuarioRetornado == null) {
+	        redirect.addFlashAttribute("mensagem", "Usuário não encontrado");
+	        return "redirect:/usuario";
+	    }
+
+	    session.setAttribute("usuario", usuarioRetornado);
+	    return "usuarioLogado";
 	}
 
 	@RequestMapping("/logout")

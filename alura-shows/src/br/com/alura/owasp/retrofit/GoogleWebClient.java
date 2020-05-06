@@ -2,16 +2,18 @@ package br.com.alura.owasp.retrofit;
 
 import java.io.IOException;
 
+import org.springframework.stereotype.Component;
+
 import retrofit2.Call;
 
+@Component
 public class GoogleWebClient {
 
     private static final String SECRET = "";
 
-    public void verifica(String recaptcha) throws IOException {
+    public boolean verifica(String recaptcha) throws IOException {
 
         Call<Resposta> token = new RetrofitInicializador().getGoogleService().enviaToken(SECRET, recaptcha);
-        token.execute().body().isSuccess();
-
+        return token.execute().body().isSuccess();
     }
 }
